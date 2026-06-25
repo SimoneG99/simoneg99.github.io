@@ -249,111 +249,24 @@
         // Configurazione PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // ------------------- Libreria pdf2svg integrata -------------------
-        // (basata su https://github.com/nicolus/pdf2svg, licenza MIT)
-        (function(){
-            const SVG_NS = 'http://www.w3.org/2000/svg';
-            const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+        // Funzione corretta per ottenere l'SVG vettoriale
+        async function convertPdfToSvg(pdfData) {
+            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+            const page = await pdf.getPage(1);
 
-            class SvgRenderer {
-                constructor(options = {}) {
-                    this.svg = document.createElementNS(SVG_NS, 'svg');
-                    this.svg.setAttribute('xmlns', SVG_NS);
-                    this.currentGroup = this.svg;
-                    this.clipPaths = {};
-                    this.transformMatrix = null;
-                    this.width = 0;
-                    this.height = 0;
-                }
+            // 🔥 CORREZIONE: richiedi i dati dei font con fontExtraProperties: true
+            const operatorList = await page.getOperatorList({
+                fontExtraProperties: true
+            });
 
-                _newElement(tag) {
-                    return document.createElementNS(SVG_NS, tag);
-                }
+            const viewport = page.getViewport({ scale: 1.0 });
 
-                _setAttributes(el, attrs) {
-                    for (let key in attrs) {
-                        if (key === 'xml:space') {
-                            el.setAttributeNS(XML_NS, 'xml:space', attrs[key]);
-                        } else {
-                            el.setAttribute(key, attrs[key]);
-                        }
-                    }
-                }
+            const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
+            svgGraphics.embedFonts = true; // tenta di incorporare i font
 
-                setDimensions(width, height) {
-                    this.width = width;
-                    this.height = height;
-                    this.svg.setAttribute('width', width);
-                    this.svg.setAttribute('height', height);
-                    this.svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-                }
-
-                beginGroup() {
-                    const group = this._newElement('g');
-                    this.currentGroup.appendChild(group);
-                    this.currentGroup = group;
-                }
-
-                endGroup() {
-                    this.currentGroup = this.currentGroup.parentNode;
-                }
-
-                addText(text, x, y, fontSize, fontFamily, transform) {
-                    const el = this._newElement('text');
-                    this._setAttributes(el, {
-                        x: x,
-                        y: y,
-                        'font-size': fontSize,
-                        'font-family': fontFamily || 'sans-serif',
-                        fill: 'currentColor',
-                    });
-                    el.textContent = text;
-                    if (transform) {
-                        el.setAttribute('transform', transform);
-                    }
-                    this.currentGroup.appendChild(el);
-                }
-
-                addPath(pathData, style) {
-                    const path = this._newElement('path');
-                    this._setAttributes(path, {
-                        d: pathData,
-                        style: style || 'fill: none; stroke: black;'
-                    });
-                    this.currentGroup.appendChild(path);
-                }
-
-                addRect(x, y, w, h, style) {
-                    const rect = this._newElement('rect');
-                    this._setAttributes(rect, {
-                        x: x, y: y, width: w, height: h,
-                        style: style || 'fill: black;'
-                    });
-                    this.currentGroup.appendChild(rect);
-                }
-
-                getString() {
-                    const serializer = new XMLSerializer();
-                    return serializer.serializeToString(this.svg);
-                }
-            }
-
-            window.convertPdfToSvg = async function(pdfData) {
-                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-                const page = await pdf.getPage(1);
-                const viewport = page.getViewport({ scale: 1.0 });
-                const renderer = new SvgRenderer();
-                renderer.setDimensions(viewport.width, viewport.height);
-
-                const operatorList = await page.getOperatorList();
-                const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
-                svgGraphics.embedFonts = true; // tenta di incorporare font
-
-                const svgElement = await svgGraphics.getSVG(operatorList, viewport);
-                // Sostituisce l'intero SVG generato con quello della libreria ufficiale
-                return new XMLSerializer().serializeToString(svgElement);
-            };
-        })();
+            const svgElement = await svgGraphics.getSVG(operatorList, viewport);
+            return new XMLSerializer().serializeToString(svgElement);
+        }
 
         // Elementi DOM
         const dropArea = document.getElementById('drop-area');
