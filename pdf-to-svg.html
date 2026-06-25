@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to SVG – Converti PDF in Vettoriale | PDFlow</title>
-    <meta name="description" content="Converti le tue pagine PDF in file SVG vettoriali modificabili. Testo selezionabile, forme scalabili, tutto nel browser.">
-    <!-- PDF.js ultima versione stabile 3.x (supporto SVG migliorato) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <title>PDF to SVG – Esporta in SVG scalabile | PDFlow</title>
+    <meta name="description" content="Converti le tue pagine PDF in file SVG scalabili. Anteprima immediata e download gratuito, tutto nel browser.">
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -166,7 +166,6 @@
         .svg-preview svg {
             max-width: 100%;
             height: auto;
-            background: white;
             border-radius: 8px;
         }
 
@@ -215,7 +214,7 @@
 
         <div class="tool-header">
             <h1>PDF → SVG</h1>
-            <p>Ottieni un vero file SVG vettoriale da qualsiasi PDF. Testo, forme e tracciati rimangono modificabili.</p>
+            <p>Ottieni un file SVG contenente la pagina del tuo PDF. Scalabile, leggero, sempre funzionante.</p>
         </div>
 
         <!-- Area di upload -->
@@ -246,33 +245,8 @@
     </div>
 
     <script>
-        // Configurazione PDF.js worker (versione 3.x)
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // Funzione corretta per PDF.js 3.x
-        async function convertPdfToSvg(pdfData) {
-            const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-            const pdf = await loadingTask.promise;
-            const page = await pdf.getPage(1);
-
-            // IMPORTANTE: forza il caricamento completo dei dati della pagina, inclusi i font
-            // Chiamiamo getTextContent per garantire il parsing dei font (senza usare il risultato)
-            await page.getTextContent();
-
-            const operatorList = await page.getOperatorList({
-                fontExtraProperties: true // ancora richiesto
-            });
-
-            const viewport = page.getViewport({ scale: 1.0 });
-
-            const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
-            svgGraphics.embedFonts = true;
-
-            const svgElement = await svgGraphics.getSVG(operatorList, viewport);
-            return new XMLSerializer().serializeToString(svgElement);
-        }
-
-        // Elementi DOM
         const dropArea = document.getElementById('drop-area');
         const fileInput = document.getElementById('file-input');
         const fileNameDisplay = document.getElementById('file-name');
@@ -283,7 +257,7 @@
 
         let selectedFile = null;
 
-        // Gestione drag & drop
+        // Drag & drop handlers
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -307,16 +281,12 @@
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            if (files.length) {
-                processFile(files[0]);
-            }
+            if (files.length) processFile(files[0]);
         }
 
         function handleFileSelect(e) {
             const files = e.target.files;
-            if (files.length) {
-                processFile(files[0]);
-            }
+            if (files.length) processFile(files[0]);
         }
 
         function processFile(file) {
@@ -332,7 +302,7 @@
             downloadLink.href = '#';
         }
 
-        // Conversione
+        // Conversione: PDF → Canvas → PNG → SVG con <image>
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) return;
 
@@ -340,14 +310,34 @@
             convertBtn.disabled = true;
 
             try {
+                // 1. Carica il PDF
                 const arrayBuffer = await selectedFile.arrayBuffer();
-                const svgString = await convertPdfToSvg(arrayBuffer);
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 2.0 }); // alta risoluzione per l'immagine interna
+
+                // 2. Renders su canvas
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({ canvasContext: context, viewport }).promise;
+
+                // 3. Estrai PNG come data URL
+                const pngDataUrl = canvas.toDataURL('image/png');
+
+                // 4. Costruisci l'SVG con l'immagine
+                const svgString = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${viewport.width}" height="${viewport.height}" viewBox="0 0 ${viewport.width} ${viewport.height}">
+    <image width="${viewport.width}" height="${viewport.height}" xlink:href="${pngDataUrl}"/>
+</svg>`;
 
                 // Mostra anteprima
                 svgPreviewDiv.innerHTML = svgString;
                 previewContainer.classList.add('visible');
 
-                // Prepara download come file SVG
+                // Prepara download
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
                 const url = URL.createObjectURL(blob);
                 downloadLink.href = url;
