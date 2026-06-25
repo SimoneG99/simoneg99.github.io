@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to SVG – Converti PDF in Vettoriale | PDFlow</title>
     <meta name="description" content="Converti le tue pagine PDF in file SVG vettoriali modificabili. Testo selezionabile, forme scalabili, tutto nel browser.">
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- PDF.js ultima versione stabile 3.x (supporto SVG migliorato) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -246,23 +246,27 @@
     </div>
 
     <script>
-        // Configurazione PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        // Configurazione PDF.js worker (versione 3.x)
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // Funzione corretta per ottenere l'SVG vettoriale
+        // Funzione corretta per PDF.js 3.x
         async function convertPdfToSvg(pdfData) {
-            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+            const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+            const pdf = await loadingTask.promise;
             const page = await pdf.getPage(1);
 
-            // 🔥 CORREZIONE: richiedi i dati dei font con fontExtraProperties: true
+            // IMPORTANTE: forza il caricamento completo dei dati della pagina, inclusi i font
+            // Chiamiamo getTextContent per garantire il parsing dei font (senza usare il risultato)
+            await page.getTextContent();
+
             const operatorList = await page.getOperatorList({
-                fontExtraProperties: true
+                fontExtraProperties: true // ancora richiesto
             });
 
             const viewport = page.getViewport({ scale: 1.0 });
 
             const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
-            svgGraphics.embedFonts = true; // tenta di incorporare i font
+            svgGraphics.embedFonts = true;
 
             const svgElement = await svgGraphics.getSVG(operatorList, viewport);
             return new XMLSerializer().serializeToString(svgElement);
