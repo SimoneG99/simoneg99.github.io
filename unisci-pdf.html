@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unisci PDF – Combina più PDF | PDFlow</title>
-    <meta name="description" content="Unisci più file PDF in uno solo. Trascina, riordina e scarica il PDF unito. Gratuito e senza registrazione.">
-    <!-- pdf-lib per la manipolazione PDF -->
+    <title>Unisci PDF – Combina più PDF con anteprima | PDFlow</title>
+    <meta name="description" content="Unisci più PDF in uno solo. Carica, visualizza anteprime, riordina con drag & drop o pulsanti A-Z, Z-A e per data. Gratuito e senza registrazione.">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
         * {
@@ -27,7 +27,7 @@
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
@@ -98,40 +98,90 @@
             font-weight: 600;
         }
 
+        /* Barra ordinamenti */
+        .sort-bar {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.5rem 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        .sort-bar.visible {
+            display: flex;
+        }
+
+        .sort-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.85);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .sort-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #ffd200;
+        }
+
         /* Lista file */
         .file-list {
-            margin-top: 2rem;
             list-style: none;
-            display: flex;
+            display: none;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .file-list.visible {
+            display: flex;
         }
 
         .file-item {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            padding: 0.75rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 1rem;
             cursor: grab;
-            transition: background 0.2s;
+            transition: background 0.2s, border-color 0.2s;
         }
 
         .file-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
         }
 
         .file-item.drag-ghost {
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
-        .file-name {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            word-break: break-all;
+        .file-thumb {
+            width: 48px;
+            height: 64px;
+            background: white;
+            border-radius: 4px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .file-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name-text {
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 0.2rem;
         }
 
         .file-remove {
@@ -140,8 +190,9 @@
             color: rgba(255,255,255,0.6);
             cursor: pointer;
             font-size: 1.2rem;
-            padding: 0 0.5rem;
+            padding: 0.5rem;
             transition: color 0.2s;
+            flex-shrink: 0;
         }
 
         .file-remove:hover {
@@ -160,6 +211,7 @@
             transition: opacity 0.2s, transform 0.1s;
             display: none;
             font-size: 1rem;
+            width: fit-content;
         }
 
         .btn-merge.visible {
@@ -206,18 +258,26 @@
 
         <div class="tool-header">
             <h1>Unisci PDF</h1>
-            <p>Carica due o più PDF, trascinali per riordinarli, e scarica un unico file combinato.</p>
+            <p>Carica due o più PDF, guarda l’anteprima e riordinali come vuoi. Poi scarica il file unito.</p>
         </div>
 
-        <!-- Area upload -->
+        <!-- Upload -->
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept=".pdf" multiple>
-            <label for="file-input" class="upload-label" id="upload-label">
+            <label for="file-input" class="upload-label">
                 Trascina qui i tuoi PDF<br>oppure <span>clicca per caricarli</span>
             </label>
         </div>
 
-        <!-- Elenco file -->
+        <!-- Pulsanti ordinamento -->
+        <div class="sort-bar" id="sort-bar">
+            <span style="font-size:0.85rem; color: rgba(255,255,255,0.6);">Ordina:</span>
+            <button class="sort-btn" data-sort="az">A → Z</button>
+            <button class="sort-btn" data-sort="za">Z → A</button>
+            <button class="sort-btn" data-sort="date">Data</button>
+        </div>
+
+        <!-- Lista file -->
         <ul class="file-list" id="file-list"></ul>
 
         <button class="btn-merge" id="merge-btn">Unisci PDF</button>
@@ -227,90 +287,111 @@
             🚀 Il tuo annuncio qui – genera entrate con AdSense
         </div>
 
-        <footer>
-            © 2025 PDFlow
-        </footer>
+        <footer>© 2025 PDFlow</footer>
     </div>
 
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
         const dropArea = document.getElementById('drop-area');
         const fileInput = document.getElementById('file-input');
+        const sortBar = document.getElementById('sort-bar');
         const fileListEl = document.getElementById('file-list');
         const mergeBtn = document.getElementById('merge-btn');
-        const uploadLabel = document.getElementById('upload-label');
 
-        // Array dei file PDF selezionati (nell'ordine attuale)
-        let pdfFiles = [];
+        // Array di oggetti: { file, name, lastModified, thumbnail, bytes }
+        let pdfItems = [];
 
-        // Gestione drag & drop
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
-        });
-
-        dropArea.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFileSelect, false);
-
-        function handleDrop(e) {
+        // Drag & drop (caricamento file)
+        ['dragenter','dragover','dragleave','drop'].forEach(e => dropArea.addEventListener(e, p => p.preventDefault() && p.stopPropagation(), false));
+        ['dragenter','dragover'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.add('drag-over'), false));
+        ['dragleave','drop'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.remove('drag-over'), false));
+        dropArea.addEventListener('drop', e => {
             const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf');
-            addFiles(files);
-        }
-
-        function handleFileSelect(e) {
+            if (files.length) addFiles(files);
+        });
+        fileInput.addEventListener('change', e => {
             const files = Array.from(e.target.files).filter(f => f.type === 'application/pdf');
-            addFiles(files);
+            if (files.length) addFiles(files);
+        });
+
+        async function addFiles(files) {
+            for (const file of files) {
+                const thumb = await generateThumbnail(file);
+                pdfItems.push({
+                    file,
+                    name: file.name,
+                    lastModified: file.lastModified,
+                    thumbnail: thumb,
+                    bytes: null // caricato al momento del merge
+                });
+            }
+            renderList();
+            updateMergeButton();
+            fileInput.value = '';
         }
 
-        function addFiles(files) {
-            pdfFiles.push(...files);
-            renderFileList();
-            updateMergeButton();
-            fileInput.value = ''; // permette di riselezionare lo stesso file
+        async function generateThumbnail(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 0.3 });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                return canvas.toDataURL();
+            } catch {
+                return null; // se fallisce, nessuna anteprima
+            }
         }
 
         function removeFile(index) {
-            pdfFiles.splice(index, 1);
-            renderFileList();
+            pdfItems.splice(index, 1);
+            renderList();
             updateMergeButton();
         }
 
-        function renderFileList() {
+        function updateMergeButton() {
+            mergeBtn.classList.toggle('visible', pdfItems.length >= 2);
+            sortBar.classList.toggle('visible', pdfItems.length >= 2);
+            fileListEl.classList.toggle('visible', pdfItems.length > 0);
+        }
+
+        function renderList() {
             fileListEl.innerHTML = '';
-            pdfFiles.forEach((file, index) => {
+            pdfItems.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.className = 'file-item';
                 li.draggable = true;
                 li.dataset.index = index;
 
+                const thumbImg = item.thumbnail
+                    ? `<img src="${item.thumbnail}" class="file-thumb" alt="anteprima">`
+                    : `<div class="file-thumb" style="background:rgba(255,255,255,0.1);"></div>`;
+
+                const dateStr = new Date(item.lastModified).toLocaleDateString('it-IT', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+
                 li.innerHTML = `
-                    <div class="file-name">
-                        <span>📄</span>
-                        <span>${file.name}</span>
+                    ${thumbImg}
+                    <div class="file-details">
+                        <div class="file-name-text">📄 ${item.name}</div>
+                        <div class="file-meta">${dateStr}</div>
                     </div>
                     <button class="file-remove" data-index="${index}">✕</button>
                 `;
 
-                // Rimozione
                 li.querySelector('.file-remove').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    removeFile(index);
+                    removeFile(parseInt(e.target.dataset.index));
                 });
 
-                // Drag per riordino
                 li.addEventListener('dragstart', handleDragStart);
-                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('dragover', e => e.preventDefault());
                 li.addEventListener('drop', handleDropReorder);
                 li.addEventListener('dragend', handleDragEnd);
 
@@ -318,29 +399,22 @@
             });
         }
 
-        // ---- Riordino tramite drag ----
+        // ---- Riordino drag & drop ----
         let dragSrcIndex = null;
 
         function handleDragStart(e) {
             dragSrcIndex = parseInt(e.currentTarget.dataset.index);
             e.currentTarget.classList.add('drag-ghost');
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', dragSrcIndex);
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
         }
 
         function handleDropReorder(e) {
             e.preventDefault();
             const targetIndex = parseInt(e.currentTarget.dataset.index);
             if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
-                // Sposta l'elemento
-                const movedFile = pdfFiles.splice(dragSrcIndex, 1)[0];
-                pdfFiles.splice(targetIndex, 0, movedFile);
-                renderFileList();
+                const moved = pdfItems.splice(dragSrcIndex, 1)[0];
+                pdfItems.splice(targetIndex, 0, moved);
+                renderList();
             }
         }
 
@@ -349,36 +423,38 @@
             dragSrcIndex = null;
         }
 
-        function updateMergeButton() {
-            if (pdfFiles.length >= 2) {
-                mergeBtn.classList.add('visible');
-            } else {
-                mergeBtn.classList.remove('visible');
-            }
-        }
+        // ---- Pulsanti ordinamento ----
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const sortType = btn.dataset.sort;
+                if (sortType === 'az') {
+                    pdfItems.sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
+                } else if (sortType === 'za') {
+                    pdfItems.sort((a, b) => b.name.localeCompare(a.name, 'it', { sensitivity: 'base' }));
+                } else if (sortType === 'date') {
+                    pdfItems.sort((a, b) => a.lastModified - b.lastModified);
+                }
+                renderList();
+            });
+        });
 
         // ---- Unione PDF ----
         mergeBtn.addEventListener('click', async () => {
-            if (pdfFiles.length < 2) return;
-
+            if (pdfItems.length < 2) return;
             mergeBtn.textContent = 'Unione in corso...';
             mergeBtn.disabled = true;
 
             try {
-                const mergedPdf = await PDFLib.PDFDocument.create();
-
-                for (const file of pdfFiles) {
-                    const arrayBuffer = await file.arrayBuffer();
+                const mergedDoc = await PDFLib.PDFDocument.create();
+                for (const item of pdfItems) {
+                    const arrayBuffer = await item.file.arrayBuffer();
                     const srcDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-                    const copiedPages = await mergedPdf.copyPages(srcDoc, srcDoc.getPageIndices());
-                    copiedPages.forEach(page => mergedPdf.addPage(page));
+                    const copiedPages = await mergedDoc.copyPages(srcDoc, srcDoc.getPageIndices());
+                    copiedPages.forEach(page => mergedDoc.addPage(page));
                 }
-
-                const mergedPdfBytes = await mergedPdf.save();
-                const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+                const mergedBytes = await mergedDoc.save();
+                const blob = new Blob([mergedBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
-
-                // Avvia download automatico
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'unito.pdf';
@@ -386,11 +462,9 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-
-                mergeBtn.textContent = 'Unisci PDF';
-                mergeBtn.disabled = false;
             } catch (error) {
                 alert('Errore durante l\'unione: ' + error.message);
+            } finally {
                 mergeBtn.textContent = 'Unisci PDF';
                 mergeBtn.disabled = false;
             }
