@@ -98,7 +98,6 @@
             font-weight: 600;
         }
 
-        /* File info */
         .file-info {
             display: none;
             align-items: center;
@@ -124,7 +123,6 @@
             font-size: 0.9rem;
         }
 
-        /* Pannello compressione */
         .compression-panel {
             display: none;
             margin-top: 2rem;
@@ -139,12 +137,6 @@
 
         .compression-panel.visible {
             display: flex;
-        }
-
-        .quality-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
         }
 
         .quality-options {
@@ -214,7 +206,6 @@
             color: #fff;
         }
 
-        /* Barra avanzamento */
         .progress-container {
             display: none;
             flex-direction: column;
@@ -247,11 +238,6 @@
             text-align: center;
         }
 
-        .cancel-btn {
-            margin-top: 0.5rem;
-        }
-
-        /* Risultato */
         .result-panel {
             display: none;
             margin-top: 2rem;
@@ -338,7 +324,6 @@
             <p>Scegli la qualità e avvia la compressione. Puoi annullare in qualsiasi momento.</p>
         </div>
 
-        <!-- Upload -->
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept=".pdf">
             <label for="file-input" class="upload-label">
@@ -346,49 +331,42 @@
             </label>
         </div>
 
-        <!-- File info -->
         <div class="file-info" id="file-info">
             <span class="file-name" id="file-name-display"></span>
             <span class="file-size" id="original-size"></span>
         </div>
 
-        <!-- Pannello compressione -->
         <div class="compression-panel" id="compression-panel">
-            <div class="quality-selector">
-                <p style="font-weight:500;">Qualità di compressione</p>
-                <div class="quality-options" id="quality-options">
-                    <div class="quality-card" data-quality="lossless">
-                        <div class="quality-percent">Senza perdita</div>
-                        <div class="quality-desc">Solo ottimizzazione struttura</div>
-                    </div>
-                    <div class="quality-card selected" data-quality="90">
-                        <div class="quality-percent">90%</div>
-                        <div class="quality-desc">Stampa di alta qualità</div>
-                    </div>
-                    <div class="quality-card" data-quality="70">
-                        <div class="quality-percent">70%</div>
-                        <div class="quality-desc">Uso quotidiano</div>
-                    </div>
-                    <div class="quality-card" data-quality="50">
-                        <div class="quality-percent">50%</div>
-                        <div class="quality-desc">Dimensione minima</div>
-                    </div>
+            <div class="quality-options" id="quality-options">
+                <div class="quality-card" data-quality="lossless">
+                    <div class="quality-percent">Senza perdita</div>
+                    <div class="quality-desc">Solo ottimizzazione</div>
+                </div>
+                <div class="quality-card selected" data-quality="90">
+                    <div class="quality-percent">90%</div>
+                    <div class="quality-desc">Qualità eccellente</div>
+                </div>
+                <div class="quality-card" data-quality="70">
+                    <div class="quality-percent">70%</div>
+                    <div class="quality-desc">Buon compromesso</div>
+                </div>
+                <div class="quality-card" data-quality="50">
+                    <div class="quality-percent">50%</div>
+                    <div class="quality-desc">Dimensione ridotta</div>
                 </div>
             </div>
 
             <button class="btn" id="compress-btn">Comprimi PDF</button>
 
-            <!-- Barra avanzamento e annulla -->
             <div class="progress-container" id="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
                 <div class="progress-text" id="progress-text">Pagina 0 di 0</div>
-                <button class="btn btn-outline cancel-btn" id="cancel-btn">Annulla</button>
+                <button class="btn btn-outline" id="cancel-btn">Annulla</button>
             </div>
         </div>
 
-        <!-- Risultato -->
         <div class="result-panel" id="result-panel">
             <div class="size-comparison">
                 <div class="size-box">
@@ -405,7 +383,6 @@
             <button class="btn" id="download-btn">Scarica PDF compresso</button>
         </div>
 
-        <!-- Spazio pubblicità -->
         <div class="ad-space" id="ad-banner-tool">
             🚀 Il tuo annuncio qui – genera entrate con AdSense
         </div>
@@ -416,7 +393,6 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // Elementi DOM
         const dropArea = document.getElementById('drop-area');
         const fileInput = document.getElementById('file-input');
         const fileInfo = document.getElementById('file-info');
@@ -438,10 +414,9 @@
         let originalFile = null;
         let originalSizeBytes = 0;
         let compressedBytes = null;
-        let selectedQuality = '90'; // default
-        let abortController = null; // per interrompere
+        let selectedQuality = '90';
+        let abortController = null;
 
-        // Selezione qualità
         qualityCards.forEach(card => {
             card.addEventListener('click', () => {
                 qualityCards.forEach(c => c.classList.remove('selected'));
@@ -450,7 +425,6 @@
             });
         });
 
-        // Drag & drop
         ['dragenter','dragover','dragleave','drop'].forEach(e => dropArea.addEventListener(e, p => p.preventDefault() && p.stopPropagation(), false));
         ['dragenter','dragover'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.add('drag-over'), false));
         ['dragleave','drop'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.remove('drag-over'), false));
@@ -488,24 +462,20 @@
             progressContainer.classList.remove('visible');
             progressFill.style.width = '0%';
             progressText.textContent = 'Pagina 0 di 0';
-            cancelBtn.style.display = 'none';
             compressBtn.disabled = false;
             compressBtn.textContent = 'Comprimi PDF';
             abortController = null;
         }
 
-        // Avvia compressione
         compressBtn.addEventListener('click', async () => {
             if (!originalFile) return;
 
-            // Prepara UI
             compressBtn.disabled = true;
             compressBtn.textContent = 'Preparazione...';
             progressContainer.classList.add('visible');
             cancelBtn.style.display = 'inline-block';
             resultPanel.classList.remove('visible');
 
-            // Crea un AbortController per interrompere
             abortController = new AbortController();
             const signal = abortController.signal;
 
@@ -513,8 +483,7 @@
                 const arrayBuffer = await originalFile.arrayBuffer();
 
                 if (selectedQuality === 'lossless') {
-                    // Senza perdita: solo ottimizzazione pdf-lib
-                    // Non ci sono pagine da processare, quindi mostriamo un avanzamento finto
+                    // Solo ottimizzazione pdf-lib
                     progressFill.style.width = '100%';
                     progressText.textContent = 'Ottimizzazione completata';
                     const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
@@ -523,21 +492,24 @@
                         addDefaultPage: false,
                     });
                 } else {
-                    // Compressione con rasterizzazione
+                    const qualityPercent = parseInt(selectedQuality);
+                    // Mappa qualità -> (jpegQuality, scale)
+                    let jpegQuality, scale;
+                    if (qualityPercent === 90) {
+                        jpegQuality = 0.92; scale = 2.0;
+                    } else if (qualityPercent === 70) {
+                        jpegQuality = 0.80; scale = 1.5;
+                    } else { // 50
+                        jpegQuality = 0.60; scale = 1.0;
+                    }
+
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     const numPages = pdf.numPages;
-
-                    const qualityPercent = parseInt(selectedQuality);
-                    const quality = qualityPercent / 100;
-                    const scale = qualityPercent >= 90 ? 1.5 : qualityPercent >= 70 ? 1.0 : 0.75;
-
                     const newPdfDoc = await PDFLib.PDFDocument.create();
 
                     for (let i = 1; i <= numPages; i++) {
-                        // Controlla se è stato richiesto l'annullamento
                         if (signal.aborted) throw new Error('Annullato');
 
-                        // Aggiorna progresso
                         const percent = Math.round((i / numPages) * 100);
                         progressFill.style.width = percent + '%';
                         progressText.textContent = `Pagina ${i} di ${numPages} (${percent}%)`;
@@ -550,8 +522,7 @@
                         const ctx = canvas.getContext('2d');
                         await page.render({ canvasContext: ctx, viewport }).promise;
 
-                        // Converti in JPEG
-                        const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
+                        const jpegDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
                         const resp = await fetch(jpegDataUrl);
                         const jpegBytes = await resp.arrayBuffer();
 
@@ -568,7 +539,6 @@
                     compressedBytes = await newPdfDoc.save();
                 }
 
-                // Completamento
                 progressFill.style.width = '100%';
                 progressText.textContent = 'Completato';
                 cancelBtn.style.display = 'none';
@@ -587,7 +557,6 @@
             }
         });
 
-        // Annulla
         cancelBtn.addEventListener('click', () => {
             if (abortController) {
                 abortController.abort();
@@ -611,14 +580,15 @@
             resultPanel.classList.add('visible');
         }
 
-        // Download
         downloadBtn.addEventListener('click', () => {
-            if (!compressedBytes) return;
+            if (!compressedBytes || !originalFile) return;
+            const originalName = originalFile.name.replace(/\.pdf$/i, '');
+            const downloadName = `${originalName}_compresso.pdf`;
             const blob = new Blob([compressedBytes], { type: 'application/pdf' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'compresso.pdf';
+            a.download = downloadName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
