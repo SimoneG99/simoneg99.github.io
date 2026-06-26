@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprimi PDF – Scegli la qualità | PDFlow</title>
-    <meta name="description" content="Comprimi PDF scegliendo la percentuale di qualità. Barra di avanzamento e possibilità di annullare. Gratuito e senza registrazione.">
+    <title>Comprimi PDF – Qualità su misura | PDFlow</title>
+    <meta name="description" content="Comprimi PDF scegliendo la qualità. Barra di avanzamento e possibilità di annullare. Gratuito e senza registrazione.">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
@@ -42,15 +42,9 @@
             display: inline-block;
             transition: color 0.2s;
         }
+        .back-link:hover { color: #ffd200; }
 
-        .back-link:hover {
-            color: #ffd200;
-        }
-
-        .tool-header {
-            margin-bottom: 2.5rem;
-        }
-
+        .tool-header { margin-bottom: 2.5rem; }
         .tool-header h1 {
             font-size: 2.5rem;
             font-weight: 700;
@@ -59,39 +53,29 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
-
-        .tool-header p {
-            color: rgba(255,255,255,0.6);
-            font-size: 1rem;
-        }
+        .tool-header p { color: rgba(255,255,255,0.6); font-size: 1rem; }
 
         .upload-area {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             backdrop-filter: blur(20px);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255,255,255,0.2);
             border-radius: 24px;
             padding: 3rem 1.5rem;
             text-align: center;
             transition: background 0.2s, border-color 0.2s;
             margin-bottom: 2rem;
         }
-
         .upload-area.drag-over {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             border-color: #ffd200;
         }
-
-        .upload-area input {
-            display: none;
-        }
-
+        .upload-area input { display: none; }
         .upload-label {
             color: rgba(255,255,255,0.8);
             font-size: 1rem;
             cursor: pointer;
             display: block;
         }
-
         .upload-label span {
             text-decoration: underline;
             color: #ffd200;
@@ -108,20 +92,9 @@
             padding: 1rem 1.5rem;
             margin-top: 1rem;
         }
-
-        .file-info.visible {
-            display: flex;
-        }
-
-        .file-name {
-            font-weight: 500;
-            word-break: break-word;
-        }
-
-        .file-size {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9rem;
-        }
+        .file-info.visible { display: flex; }
+        .file-name { font-weight: 500; word-break: break-word; }
+        .file-size { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
 
         .compression-panel {
             display: none;
@@ -134,15 +107,12 @@
             border-radius: 24px;
             padding: 2rem;
         }
-
-        .compression-panel.visible {
-            display: flex;
-        }
+        .compression-panel.visible { display: flex; }
 
         .quality-options {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 0.75rem;
-            flex-wrap: wrap;
         }
 
         .quality-card {
@@ -152,29 +122,15 @@
             padding: 1rem;
             cursor: pointer;
             text-align: center;
-            flex: 1 0 130px;
             transition: border-color 0.2s, background 0.2s;
         }
-
-        .quality-card:hover {
-            background: rgba(255,255,255,0.08);
-        }
-
+        .quality-card:hover { background: rgba(255,255,255,0.08); }
         .quality-card.selected {
             border-color: #ffd200;
             background: rgba(255,215,0,0.1);
         }
-
-        .quality-percent {
-            font-weight: 700;
-            font-size: 1.4rem;
-        }
-
-        .quality-desc {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.5);
-            margin-top: 0.25rem;
-        }
+        .quality-percent { font-weight: 700; font-size: 1.4rem; }
+        .quality-desc { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
 
         .btn {
             background: linear-gradient(135deg, #f7971e, #ffd200);
@@ -188,18 +144,8 @@
             font-size: 1rem;
             width: fit-content;
         }
-
-        .btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-outline {
             background: transparent;
             border: 1px solid rgba(255,255,255,0.3);
@@ -212,11 +158,7 @@
             gap: 0.5rem;
             margin-top: 1rem;
         }
-
-        .progress-container.visible {
-            display: flex;
-        }
-
+        .progress-container.visible { display: flex; }
         .progress-bar {
             width: 100%;
             height: 10px;
@@ -224,19 +166,13 @@
             border-radius: 10px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #f7971e, #ffd200);
             transition: width 0.2s;
         }
-
-        .progress-text {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.7);
-            text-align: center;
-        }
+        .progress-text { font-size: 0.9rem; color: rgba(255,255,255,0.7); text-align: center; }
 
         .result-panel {
             display: none;
@@ -250,11 +186,7 @@
             align-items: center;
             gap: 1.5rem;
         }
-
-        .result-panel.visible {
-            display: flex;
-        }
-
+        .result-panel.visible { display: flex; }
         .size-comparison {
             display: flex;
             gap: 2rem;
@@ -262,28 +194,10 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-
-        .size-box {
-            text-align: center;
-        }
-
-        .size-label {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .size-value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .arrow {
-            font-size: 2rem;
-            color: #ffd200;
-        }
-
+        .size-box { text-align: center; }
+        .size-label { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+        .size-value { font-size: 2rem; font-weight: 700; }
+        .arrow { font-size: 2rem; color: #ffd200; }
         .saved-badge {
             background: rgba(255,215,0,0.2);
             color: #ffd200;
@@ -321,7 +235,7 @@
 
         <div class="tool-header">
             <h1>Comprimi PDF</h1>
-            <p>Scegli la qualità e avvia la compressione. Puoi annullare in qualsiasi momento.</p>
+            <p>La qualità che preferisci: dal 100% (identico all'originale) al 50% (massimo risparmio).</p>
         </div>
 
         <div class="upload-area" id="drop-area">
@@ -342,13 +256,13 @@
                     <div class="quality-percent">Senza perdita</div>
                     <div class="quality-desc">Solo ottimizzazione</div>
                 </div>
-                <div class="quality-card selected" data-quality="90">
-                    <div class="quality-percent">90%</div>
-                    <div class="quality-desc">Qualità eccellente</div>
+                <div class="quality-card selected" data-quality="100">
+                    <div class="quality-percent">100%</div>
+                    <div class="quality-desc">Qualità originale</div>
                 </div>
-                <div class="quality-card" data-quality="70">
-                    <div class="quality-percent">70%</div>
-                    <div class="quality-desc">Buon compromesso</div>
+                <div class="quality-card" data-quality="80">
+                    <div class="quality-percent">80%</div>
+                    <div class="quality-desc">Alta qualità</div>
                 </div>
                 <div class="quality-card" data-quality="50">
                     <div class="quality-percent">50%</div>
@@ -414,9 +328,10 @@
         let originalFile = null;
         let originalSizeBytes = 0;
         let compressedBytes = null;
-        let selectedQuality = '90';
+        let selectedQuality = '100';
         let abortController = null;
 
+        // Selezione qualità
         qualityCards.forEach(card => {
             card.addEventListener('click', () => {
                 qualityCards.forEach(c => c.classList.remove('selected'));
@@ -425,6 +340,7 @@
             });
         });
 
+        // Drag & drop
         ['dragenter','dragover','dragleave','drop'].forEach(e => dropArea.addEventListener(e, p => p.preventDefault() && p.stopPropagation(), false));
         ['dragenter','dragover'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.add('drag-over'), false));
         ['dragleave','drop'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.remove('drag-over'), false));
@@ -483,7 +399,7 @@
                 const arrayBuffer = await originalFile.arrayBuffer();
 
                 if (selectedQuality === 'lossless') {
-                    // Solo ottimizzazione pdf-lib
+                    // Solo ottimizzazione struttura
                     progressFill.style.width = '100%';
                     progressText.textContent = 'Ottimizzazione completata';
                     const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
@@ -492,15 +408,15 @@
                         addDefaultPage: false,
                     });
                 } else {
-                    const qualityPercent = parseInt(selectedQuality);
                     // Mappa qualità -> (jpegQuality, scale)
+                    const qualityPercent = parseInt(selectedQuality);
                     let jpegQuality, scale;
-                    if (qualityPercent === 90) {
-                        jpegQuality = 0.92; scale = 2.0;
-                    } else if (qualityPercent === 70) {
-                        jpegQuality = 0.80; scale = 1.5;
+                    if (qualityPercent === 100) {
+                        jpegQuality = 0.98; scale = 3.0;
+                    } else if (qualityPercent === 80) {
+                        jpegQuality = 0.90; scale = 2.5;
                     } else { // 50
-                        jpegQuality = 0.60; scale = 1.0;
+                        jpegQuality = 0.75; scale = 2.0;
                     }
 
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
