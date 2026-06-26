@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to PNG – Converti PDF in Immagine | PDFlow</title>
     <meta name="description" content="Converti le tue pagine PDF in PNG di alta qualità direttamente nel browser, gratis e senza upload. Veloce, sicuro, moderno.">
-    <!-- Libreria PDF.js -->
+    <!-- Google AdSense universale -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
+         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         * {
@@ -180,12 +182,10 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
-            height: 90px;
+            min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.9rem;
         }
 
         footer {
@@ -206,7 +206,6 @@
             <p>Trascina un PDF e ottieni ogni pagina come immagine PNG. Tutto nel tuo browser, nessun upload.</p>
         </div>
 
-        <!-- Area di upload -->
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept=".pdf">
             <label for="file-input" class="upload-label" id="upload-label">
@@ -217,24 +216,28 @@
 
         <button class="btn-convert" id="convert-btn">Converti in PNG</button>
 
-        <!-- Anteprima e download -->
         <div class="preview-container" id="preview">
             <img id="preview-img" src="" alt="Anteprima PNG">
             <a id="download-link" class="download-link" download="pagina.png">⬇ Scarica PNG</a>
         </div>
 
-        <!-- Spazio pubblicità -->
-        <div class="ad-space" id="ad-banner-tool">
-            🚀 Il tuo annuncio qui – genera entrate con AdSense
+        <!-- Banner pubblicitario -->
+        <div class="ad-space">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8010540950271616"
+                 data-ad-slot="IL_TUO_SLOT"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
 
-        <footer>
-            © 2025 PDFlow
-        </footer>
+        <footer>© 2025 PDFlow</footer>
     </div>
 
     <script>
-        // Configurazione PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         const dropArea = document.getElementById('drop-area');
@@ -248,7 +251,6 @@
 
         let selectedFile = null;
 
-        // Gestione drag & drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -292,13 +294,11 @@
             selectedFile = file;
             fileNameDisplay.textContent = `📄 ${file.name}`;
             convertBtn.classList.add('visible');
-            // Nascondi anteprima precedente
             previewContainer.classList.remove('visible');
             previewImg.src = '';
             downloadLink.href = '#';
         }
 
-        // Conversione PDF -> PNG (prima pagina)
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) return;
 
@@ -308,8 +308,8 @@
             try {
                 const arrayBuffer = await selectedFile.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                const page = await pdf.getPage(1); // prima pagina
-                const viewport = page.getViewport({ scale: 2.0 }); // alta risoluzione
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 2.0 });
 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -321,10 +321,8 @@
                     viewport: viewport
                 }).promise;
 
-                // Converti canvas in data URL PNG
                 const pngDataUrl = canvas.toDataURL('image/png');
 
-                // Mostra anteprima
                 previewImg.src = pngDataUrl;
                 downloadLink.href = pngDataUrl;
                 downloadLink.download = 'pagina.png';
@@ -340,4 +338,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
