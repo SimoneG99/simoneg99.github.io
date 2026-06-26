@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprimi PDF – Qualità su misura | PDFlow</title>
     <meta name="description" content="Comprimi PDF scegliendo la qualità. Barra di avanzamento e possibilità di annullare. Gratuito e senza registrazione.">
+    <!-- Google AdSense universale -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
+         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
@@ -212,12 +215,10 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
-            height: 90px;
+            min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.9rem;
         }
 
         footer {
@@ -297,8 +298,16 @@
             <button class="btn" id="download-btn">Scarica PDF compresso</button>
         </div>
 
-        <div class="ad-space" id="ad-banner-tool">
-            🚀 Il tuo annuncio qui – genera entrate con AdSense
+        <div class="ad-space">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8010540950271616"
+                 data-ad-slot="IL_TUO_SLOT"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
 
         <footer>© 2025 PDFlow</footer>
@@ -331,7 +340,6 @@
         let selectedQuality = '100';
         let abortController = null;
 
-        // Selezione qualità
         qualityCards.forEach(card => {
             card.addEventListener('click', () => {
                 qualityCards.forEach(c => c.classList.remove('selected'));
@@ -340,7 +348,6 @@
             });
         });
 
-        // Drag & drop
         ['dragenter','dragover','dragleave','drop'].forEach(e => dropArea.addEventListener(e, p => p.preventDefault() && p.stopPropagation(), false));
         ['dragenter','dragover'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.add('drag-over'), false));
         ['dragleave','drop'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.remove('drag-over'), false));
@@ -399,7 +406,6 @@
                 const arrayBuffer = await originalFile.arrayBuffer();
 
                 if (selectedQuality === 'lossless') {
-                    // Solo ottimizzazione struttura
                     progressFill.style.width = '100%';
                     progressText.textContent = 'Ottimizzazione completata';
                     const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
@@ -408,14 +414,13 @@
                         addDefaultPage: false,
                     });
                 } else {
-                    // Mappa qualità -> (jpegQuality, scale)
                     const qualityPercent = parseInt(selectedQuality);
                     let jpegQuality, scale;
                     if (qualityPercent === 100) {
                         jpegQuality = 0.98; scale = 3.0;
                     } else if (qualityPercent === 80) {
                         jpegQuality = 0.90; scale = 2.5;
-                    } else { // 50
+                    } else {
                         jpegQuality = 0.75; scale = 2.0;
                     }
 

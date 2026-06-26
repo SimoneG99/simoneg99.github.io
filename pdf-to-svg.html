@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to SVG – Esporta in SVG scalabile | PDFlow</title>
     <meta name="description" content="Converti le tue pagine PDF in file SVG scalabili. Anteprima immediata e download gratuito, tutto nel browser.">
-    <!-- PDF.js -->
+    <!-- Google AdSense universale -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
+         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         * {
@@ -191,12 +193,10 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
-            height: 90px;
+            min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.9rem;
         }
 
         footer {
@@ -217,7 +217,6 @@
             <p>Ottieni un file SVG contenente la pagina del tuo PDF. Scalabile, leggero, sempre funzionante.</p>
         </div>
 
-        <!-- Area di upload -->
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept=".pdf">
             <label for="file-input" class="upload-label" id="upload-label">
@@ -228,20 +227,24 @@
 
         <button class="btn-convert" id="convert-btn">Converti in SVG</button>
 
-        <!-- Anteprima e download -->
         <div class="preview-container" id="preview">
             <div class="svg-preview" id="svg-preview"></div>
             <a id="download-link" class="download-link" download="pagina.svg">⬇ Scarica SVG</a>
         </div>
 
-        <!-- Spazio pubblicità -->
-        <div class="ad-space" id="ad-banner-tool">
-            🚀 Il tuo annuncio qui – genera entrate con AdSense
+        <div class="ad-space">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8010540950271616"
+                 data-ad-slot="IL_TUO_SLOT"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
 
-        <footer>
-            © 2025 PDFlow
-        </footer>
+        <footer>© 2025 PDFlow</footer>
     </div>
 
     <script>
@@ -257,7 +260,6 @@
 
         let selectedFile = null;
 
-        // Drag & drop handlers
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -302,7 +304,6 @@
             downloadLink.href = '#';
         }
 
-        // Conversione: PDF → Canvas → PNG → SVG con <image>
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) return;
 
@@ -310,13 +311,11 @@
             convertBtn.disabled = true;
 
             try {
-                // 1. Carica il PDF
                 const arrayBuffer = await selectedFile.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 const page = await pdf.getPage(1);
-                const viewport = page.getViewport({ scale: 2.0 }); // alta risoluzione per l'immagine interna
+                const viewport = page.getViewport({ scale: 2.0 });
 
-                // 2. Renders su canvas
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 canvas.width = viewport.width;
@@ -324,20 +323,15 @@
 
                 await page.render({ canvasContext: context, viewport }).promise;
 
-                // 3. Estrai PNG come data URL
                 const pngDataUrl = canvas.toDataURL('image/png');
-
-                // 4. Costruisci l'SVG con l'immagine
                 const svgString = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${viewport.width}" height="${viewport.height}" viewBox="0 0 ${viewport.width} ${viewport.height}">
     <image width="${viewport.width}" height="${viewport.height}" xlink:href="${pngDataUrl}"/>
 </svg>`;
 
-                // Mostra anteprima
                 svgPreviewDiv.innerHTML = svgString;
                 previewContainer.classList.add('visible');
 
-                // Prepara download
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
                 const url = URL.createObjectURL(blob);
                 downloadLink.href = url;
