@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dividi PDF – Estrai o separa pagine | PDFlow</title>
+    <meta name="description" content="Dividi un PDF in singole pagine o estrai un intervallo specifico. Scarica subito il risultato, tutto nel browser.">
+    <!-- pdf-lib -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <!-- JSZip per lo ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #ffd200;
+        }
+
+        .tool-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .tool-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-header p {
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+        }
+
+        .upload-area {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            transition: background 0.2s, border-color 0.2s;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area.drag-over {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffd200;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+            cursor: pointer;
+            display: block;
+        }
+
+        .upload-label span {
+            text-decoration: underline;
+            color: #ffd200;
+            font-weight: 600;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #ffd200;
+            font-size: 0.95rem;
+        }
+
+        .file-info.visible {
+            display: flex;
+        }
+
+        .options-panel {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .options-panel.visible {
+            display: flex;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-group label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .option-group input {
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .option-group input:focus {
+            border-color: #ffd200;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            font-size: 1rem;
+            width: fit-content;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .ad-space {
+            width: 100%;
+            margin-top: 3rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+        }
+
+        footer {
+            margin-top: 2rem;
+            padding: 2rem 0 0;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Torna alla home</a>
+
+        <div class="tool-header">
+            <h1>Dividi PDF</h1>
+            <p>Carica un PDF, scegli se estrarre pagine specifiche o ottenere ogni pagina come file separato.</p>
+        </div>
+
+        <!-- Area upload -->
+        <div class="upload-area" id="drop-area">
+            <input type="file" id="file-input" accept=".pdf">
+            <label for="file-input" class="upload-label" id="upload-label">
+                Trascina qui il tuo PDF<br>oppure <span>clicca per caricarlo</span>
+            </label>
+        </div>
+
+        <!-- Info file caricato -->
+        <div class="file-info" id="file-info">
+            <span>📄</span>
+            <span id="file-name"></span>
+            <span id="page-count" style="color: rgba(255,255,255,0.7);"></span>
+        </div>
+
+        <!-- Opzioni di divisione -->
+        <div class="options-panel" id="options-panel">
+            <div class="option-group">
+                <label for="page-range">Estrai pagine specifiche</label>
+                <input type="text" id="page-range" placeholder="es. 1,3,5-7 (lascia vuoto per tutte)">
+                <button class="btn" id="extract-btn">Estrai e scarica PDF</button>
+            </div>
+
+            <div class="option-group">
+                <label>Dividi in singoli PDF</label>
+                <p style="font-size:0.85rem; color: rgba(255,255,255,0.5);">Scarica un file ZIP con ogni pagina come PDF indipendente.</p>
+                <button class="btn btn-secondary" id="split-zip-btn">Dividi e scarica ZIP</button>
+            </div>
+        </div>
+
+        <!-- Spazio pubblicità -->
+        <div class="ad-space" id="ad-banner-tool">
+            🚀 Il tuo annuncio qui – genera entrate con AdSense
+        </div>
+
+        <footer>
+            © 2025 PDFlow
+        </footer>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const fileNameSpan = document.getElementById('file-name');
+        const pageCountSpan = document.getElementById('page-count');
+        const optionsPanel = document.getElementById('options-panel');
+        const extractBtn = document.getElementById('extract-btn');
+        const splitZipBtn = document.getElementById('split-zip-btn');
+        const pageRangeInput = document.getElementById('page-range');
+
+        let pdfBytes = null;
+        let pdfDoc = null;
+        let totalPages = 0;
+
+        // Drag & drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
+        });
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length) processFile(files[0]);
+        }
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length) processFile(files[0]);
+        }
+
+        async function processFile(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Per favore carica un file PDF.');
+                return;
+            }
+
+            const arrayBuffer = await file.arrayBuffer();
+            pdfBytes = arrayBuffer;
+            pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+            totalPages = pdfDoc.getPageCount();
+
+            fileNameSpan.textContent = file.name;
+            pageCountSpan.textContent = `(${totalPages} pagine)`;
+            fileInfo.classList.add('visible');
+            optionsPanel.classList.add('visible');
+        }
+
+        // Helper per parsare l'input dell'utente (es. "1,3,5-7") -> array di numeri di pagina (1-based)
+        function parsePageRange(input, max) {
+            if (!input.trim()) {
+                // se vuoto, restituisce tutte le pagine
+                return Array.from({ length: max }, (_, i) => i + 1);
+            }
+            const pages = [];
+            const parts = input.split(',');
+            for (let part of parts) {
+                part = part.trim();
+                if (part.includes('-')) {
+                    const [startStr, endStr] = part.split('-');
+                    let start = parseInt(startStr);
+                    let end = parseInt(endStr);
+                    if (isNaN(start) || isNaN(end)) continue;
+                    if (start > end) [start, end] = [end, start];
+                    for (let i = start; i <= end; i++) {
+                        if (i >= 1 && i <= max && !pages.includes(i)) pages.push(i);
+                    }
+                } else {
+                    const num = parseInt(part);
+                    if (!isNaN(num) && num >= 1 && num <= max && !pages.includes(num)) pages.push(num);
+                }
+            }
+            return pages.sort((a, b) => a - b);
+        }
+
+        // Estrai pagine specifiche e scarica un unico PDF
+        extractBtn.addEventListener('click', async () => {
+            if (!pdfDoc) return;
+            const pagesToExtract = parsePageRange(pageRangeInput.value, totalPages);
+            if (pagesToExtract.length === 0) {
+                alert('Nessuna pagina selezionata.');
+                return;
+            }
+
+            extractBtn.textContent = 'Estrazione...';
+            extractBtn.disabled = true;
+
+            try {
+                const newDoc = await PDFLib.PDFDocument.create();
+                const copiedPages = await newDoc.copyPages(pdfDoc, pagesToExtract.map(p => p - 1)); // 0-based
+                copiedPages.forEach(page => newDoc.addPage(page));
+
+                const newPdfBytes = await newDoc.save();
+                const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'estratto.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Errore: ' + error.message);
+            } finally {
+                extractBtn.textContent = 'Estrai e scarica PDF';
+                extractBtn.disabled = false;
+            }
+        });
+
+        // Dividi in singole pagine e scarica ZIP
+        splitZipBtn.addEventListener('click', async () => {
+            if (!pdfDoc) return;
+            splitZipBtn.textContent = 'Creazione ZIP...';
+            splitZipBtn.disabled = true;
+
+            try {
+                const zip = new JSZip();
+                for (let i = 0; i < totalPages; i++) {
+                    const singleDoc = await PDFLib.PDFDocument.create();
+                    const [copiedPage] = await singleDoc.copyPages(pdfDoc, [i]);
+                    singleDoc.addPage(copiedPage);
+                    const singlePdfBytes = await singleDoc.save();
+                    zip.file(`pagina_${i + 1}.pdf`, singlePdfBytes);
+                }
+
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pagine_divise.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Errore: ' + error.message);
+            } finally {
+                splitZipBtn.textContent = 'Dividi e scarica ZIP';
+                splitZipBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
