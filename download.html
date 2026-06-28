@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download pronto – PDFlow</title>
+    <meta name="description" content="Il tuo file è pronto per il download. Grazie per aver usato PDFlow.">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
+         crossorigin="anonymous"></script>
+    <script src="translations.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh; color: #fff; padding: 2rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .container { text-align: center; max-width: 600px; }
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(to right, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: rgba(255,255,255,0.7); margin-bottom: 2rem; }
+        .ad-space { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; min-height: 250px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }
+        .btn {
+            background: linear-gradient(135deg, #f7971e, #ffd200); border: none; padding: 1rem 2.5rem;
+            border-radius: 50px; font-weight: 600; color: #1a1a2e; cursor: pointer; font-size: 1.2rem;
+            display: inline-block; margin: 0.5rem; text-decoration: none;
+        }
+        .btn:hover { opacity: 0.9; }
+        .back-link { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-i18n="downloadReadyTitle">Il tuo file è pronto!</h1>
+        <p data-i18n="downloadReadyDesc">Grazie per aver usato PDFlow. Ecco il tuo download.</p>
+
+        <!-- Banner grande -->
+        <div class="ad-space">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8010540950271616"
+                 data-ad-slot="IL_TUO_SLOT"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <button id="download-btn" class="btn" data-i18n="downloadBtn">Scarica</button>
+        <a href="index.html" class="back-link" data-i18n="backToTools">Torna agli strumenti</a>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const tool = params.get('tool');
+
+        const downloadBtn = document.getElementById('download-btn');
+        downloadBtn.addEventListener('click', () => {
+            if (tool === 'png') {
+                const dataUrl = sessionStorage.getItem('resultPng');
+                if (dataUrl) {
+                    const a = document.createElement('a'); a.href = dataUrl; a.download = 'pagina.png'; a.click();
+                    sessionStorage.removeItem('resultPng');
+                }
+            } else if (tool === 'svg') {
+                const svgString = sessionStorage.getItem('resultSvg');
+                if (svgString) {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = 'pagina.svg'; a.click();
+                    sessionStorage.removeItem('resultSvg');
+                }
+            } else if (tool === 'merge' || tool === 'split' || tool === 'compress') {
+                const dataUrl = sessionStorage.getItem('resultPdf');
+                const fileName = sessionStorage.getItem('resultFileName') || 'documento.pdf';
+                if (dataUrl) {
+                    const a = document.createElement('a'); a.href = dataUrl; a.download = fileName; a.click();
+                    sessionStorage.removeItem('resultPdf'); sessionStorage.removeItem('resultFileName');
+                }
+            } else if (tool === 'zip') {
+                const dataUrl = sessionStorage.getItem('resultZip');
+                if (dataUrl) {
+                    const a = document.createElement('a'); a.href = dataUrl; a.download = 'pagine.zip'; a.click();
+                    sessionStorage.removeItem('resultZip');
+                }
+            }
+            // Torna alla home dopo il download
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        });
+
+        // Se non c'è niente da scaricare, torna indietro
+        window.addEventListener('load', () => {
+            if (!tool) window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

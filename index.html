@@ -3,178 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFlow – Tool PDF moderni e veloci</title>
+    <title data-i18n="siteName">PDFlow – Tool PDF moderni e veloci</title>
+    <meta name="description" content="PDFlow è il tuo hub di strumenti PDF gratuiti: converti PDF in PNG, SVG, unisci, dividi e comprimi PDF. Moderno, veloce, senza registrazione.">
+    <!-- Schema.org WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PDFlow",
+      "description": "Tool PDF gratuiti: converti, unisci, dividi e comprimi PDF.",
+      "operatingSystem": "All",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": { "@type": "Offer", "price": "0" }
+    }
+    </script>
+    <!-- Hreflang alternativi -->
+    <link rel="alternate" href="index.html?lang=it" hreflang="it" />
+    <link rel="alternate" href="index.html?lang=en" hreflang="en" />
+    <link rel="alternate" href="index.html?lang=es" hreflang="es" />
+    <link rel="alternate" href="index.html?lang=fr" hreflang="fr" />
+    <link rel="alternate" href="index.html?lang=de" hreflang="de" />
+    <link rel="canonical" href="index.html" />
     <!-- Google AdSense universale -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
          crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
-            color: #fff;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            min-height: 100vh; color: #fff; padding: 2rem;
+            display: flex; flex-direction: column; align-items: center;
         }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .logo {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #f7971e, #ffd200);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: rgba(255,255,255,0.7);
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
+        .container { width: 100%; max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo { font-size: 3rem; font-weight: 800; background: linear-gradient(to right, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 1.2rem; letter-spacing: 1px; margin-top: 0.5rem; }
+        #lang-switcher { display: flex; gap: 0.5rem; }
+        .flag { width: 30px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+        .flag.active, .flag:hover { opacity: 1; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .card-link { text-decoration: none; color: inherit; display: block; }
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            height: 100%;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; text-align: center; height: 100%;
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
-
-        .card-desc {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9rem;
-        }
-
-        .ad-space {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto 2rem;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 2rem 0 0;
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-            text-align: center;
-        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3); }
+        .card-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .card-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .card-desc { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+        .ad-space { width: 100%; max-width: 1000px; margin: 0 auto 2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; }
+        footer { margin-top: auto; padding: 2rem 0 0; color: rgba(255,255,255,0.3); font-size: 0.8rem; text-align: center; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">PDFlow</div>
-            <div class="subtitle">Il tuo hub di strumenti PDF. Moderno, veloce, gratuito.</div>
+            <div class="logo" data-i18n="siteName">PDFlow</div>
+            <div id="lang-switcher">
+                <img src="https://flagcdn.com/w40/it.png" class="flag" data-lang="it" alt="Italiano">
+                <img src="https://flagcdn.com/w40/gb.png" class="flag" data-lang="en" alt="English">
+                <img src="https://flagcdn.com/w40/es.png" class="flag" data-lang="es" alt="Español">
+                <img src="https://flagcdn.com/w40/fr.png" class="flag" data-lang="fr" alt="Français">
+                <img src="https://flagcdn.com/w40/de.png" class="flag" data-lang="de" alt="Deutsch">
+            </div>
         </header>
+        <div class="subtitle" data-i18n="homeSubtitle">Il tuo hub di strumenti PDF. Moderno, veloce, gratuito.</div>
 
         <div class="cards-grid">
             <a href="pdf-to-png.html" class="card-link">
                 <div class="card">
                     <div class="card-icon">🖼️</div>
-                    <div class="card-title">PDF → PNG</div>
-                    <div class="card-desc">Converti ogni pagina del PDF in un'immagine PNG di alta qualità.</div>
+                    <div class="card-title" data-i18n="pdf2png">PDF → PNG</div>
+                    <div class="card-desc" data-i18n="pdf2pngDesc">Converti ogni pagina del PDF in un'immagine PNG di alta qualità.</div>
                 </div>
             </a>
-
             <a href="pdf-to-svg.html" class="card-link">
                 <div class="card">
                     <div class="card-icon">🎨</div>
-                    <div class="card-title">PDF → SVG</div>
-                    <div class="card-desc">Esporta in SVG scalabile contenente la pagina del PDF.</div>
+                    <div class="card-title" data-i18n="pdf2svg">PDF → SVG</div>
+                    <div class="card-desc" data-i18n="pdf2svgDesc">Esporta in SVG scalabile contenente la pagina del PDF.</div>
                 </div>
             </a>
-
             <a href="unisci-pdf.html" class="card-link">
                 <div class="card">
                     <div class="card-icon">🔀</div>
-                    <div class="card-title">Unisci PDF</div>
-                    <div class="card-desc">Combina più file PDF in un unico documento. Veloce e senza limiti.</div>
+                    <div class="card-title" data-i18n="mergePdf">Unisci PDF</div>
+                    <div class="card-desc" data-i18n="mergePdfDesc">Combina più file PDF in un unico documento. Veloce e senza limiti.</div>
                 </div>
             </a>
-
             <a href="dividi-pdf.html" class="card-link">
                 <div class="card">
                     <div class="card-icon">✂️</div>
-                    <div class="card-title">Dividi PDF</div>
-                    <div class="card-desc">Estrai pagine specifiche o dividi in singoli PDF. Anteprima inclusa.</div>
+                    <div class="card-title" data-i18n="splitPdf">Dividi PDF</div>
+                    <div class="card-desc" data-i18n="splitPdfDesc">Estrai pagine specifiche o dividi in singoli PDF. Anteprima inclusa.</div>
                 </div>
             </a>
-
             <a href="comprimi-pdf.html" class="card-link">
                 <div class="card">
                     <div class="card-icon">📦</div>
-                    <div class="card-title">Comprimi PDF</div>
-                    <div class="card-desc">Riduci la dimensione del tuo PDF scegliendo la qualità desiderata.</div>
+                    <div class="card-title" data-i18n="compressPdf">Comprimi PDF</div>
+                    <div class="card-desc" data-i18n="compressPdfDesc">Riduci la dimensione del tuo PDF scegliendo la qualità desiderata.</div>
                 </div>
             </a>
         </div>
 
-        <!-- Banner pubblicitario home -->
         <div class="ad-space">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -182,14 +118,12 @@
                  data-ad-slot="IL_TUO_SLOT"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
 
-        <footer>
-            © 2025 PDFlow – Fatto con passione. Tutti i diritti riservati.
-        </footer>
+        <footer data-i18n="footer">© 2025 PDFlow – Fatto con passione. Tutti i diritti riservati.</footer>
     </div>
+
+    <script src="translations.js"></script>
 </body>
 </html>

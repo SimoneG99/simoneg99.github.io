@@ -3,224 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to PNG – Converti PDF in Immagine | PDFlow</title>
+    <title data-i18n="toolTitle_png">PDF to PNG – Converti PDF in Immagine | PDFlow</title>
     <meta name="description" content="Converti le tue pagine PDF in PNG di alta qualità direttamente nel browser, gratis e senza upload. Veloce, sicuro, moderno.">
-    <!-- Google AdSense universale -->
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PDF to PNG",
+      "description": "Converti PDF in PNG di alta qualità direttamente nel browser.",
+      "operatingSystem": "All",
+      "applicationCategory": "MultimediaApplication"
+    }
+    </script>
+    <link rel="alternate" href="pdf-to-png.html?lang=it" hreflang="it" />
+    <link rel="alternate" href="pdf-to-png.html?lang=en" hreflang="en" />
+    <link rel="alternate" href="pdf-to-png.html?lang=es" hreflang="es" />
+    <link rel="alternate" href="pdf-to-png.html?lang=fr" hreflang="fr" />
+    <link rel="alternate" href="pdf-to-png.html?lang=de" hreflang="de" />
+    <link rel="canonical" href="pdf-to-png.html" />
+    <!-- AdSense universale -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8010540950271616"
          crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
-            color: #fff;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            min-height: 100vh; color: #fff; padding: 2rem;
+            display: flex; flex-direction: column; align-items: center;
         }
-
-        .container {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .back-link {
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            display: inline-block;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover {
-            color: #ffd200;
-        }
-
-        .tool-header {
-            margin-bottom: 3rem;
-        }
-
+        .container { width: 100%; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; flex: 1; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .back-link { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .back-link:hover { color: #ffd200; }
+        #lang-switcher { display: flex; gap: 0.5rem; }
+        .flag { width: 30px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+        .flag.active, .flag:hover { opacity: 1; }
+        .tool-header { margin-bottom: 2rem; }
         .tool-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.5rem; font-weight: 700;
             background: linear-gradient(to right, #f7971e, #ffd200);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;
         }
-
-        .tool-header p {
-            color: rgba(255,255,255,0.6);
-            font-size: 1rem;
-        }
-
+        .tool-header p { color: rgba(255,255,255,0.6); font-size: 1rem; }
         .upload-area {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 3rem 1.5rem;
-            text-align: center;
-            transition: background 0.2s, border-color 0.2s;
-            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border: 2px dashed rgba(255,255,255,0.2); border-radius: 24px;
+            padding: 3rem 1.5rem; text-align: center; transition: background 0.2s, border-color 0.2s; margin-bottom: 2rem;
         }
-
-        .upload-area.drag-over {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #ffd200;
-        }
-
-        .upload-area input {
-            display: none;
-        }
-
-        .upload-label {
-            color: rgba(255,255,255,0.8);
-            font-size: 1rem;
-            cursor: pointer;
-            display: block;
-        }
-
-        .upload-label span {
-            text-decoration: underline;
-            color: #ffd200;
-            font-weight: 600;
-        }
-
-        .file-name {
-            margin-top: 1rem;
-            color: #ffd200;
-            font-size: 0.9rem;
-            word-break: break-all;
-        }
-
+        .upload-area.drag-over { background: rgba(255,255,255,0.1); border-color: #ffd200; }
+        .upload-area input { display: none; }
+        .upload-label { color: rgba(255,255,255,0.8); font-size: 1rem; cursor: pointer; display: block; }
+        .upload-label span { text-decoration: underline; color: #ffd200; font-weight: 600; }
+        .file-name { margin-top: 1rem; color: #ffd200; font-size: 0.9rem; word-break: break-all; }
         .btn-convert {
-            background: linear-gradient(135deg, #f7971e, #ffd200);
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-top: 1rem;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            display: none;
-            font-size: 1rem;
+            background: linear-gradient(135deg, #f7971e, #ffd200); border: none; padding: 0.8rem 2rem;
+            border-radius: 50px; font-weight: 600; color: #1a1a2e; margin-top: 1rem;
+            cursor: pointer; transition: opacity 0.2s, transform 0.1s; display: none; font-size: 1rem;
         }
-
-        .btn-convert.visible {
-            display: inline-block;
-        }
-
-        .btn-convert:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-
-        .btn-convert:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
+        .btn-convert.visible { display: inline-block; }
+        .btn-convert:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-convert:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .preview-container {
-            margin-top: 2rem;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2rem;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2rem; display: none; flex-direction: column; align-items: center;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border-radius: 24px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .preview-container.visible {
-            display: flex;
-        }
-
-        .preview-container img {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            margin-bottom: 1.5rem;
-        }
-
+        .preview-container.visible { display: flex; }
+        .preview-container img { max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); margin-bottom: 1.5rem; }
         .download-link {
-            background: rgba(255,255,255,0.1);
-            color: #ffd200;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: background 0.2s;
-            display: inline-block;
+            background: rgba(255,255,255,0.1); color: #ffd200; text-decoration: none;
+            font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s; display: inline-block;
         }
-
-        .download-link:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .ad-space {
-            width: 100%;
-            margin-top: 3rem;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        footer {
-            margin-top: 2rem;
-            padding: 2rem 0 0;
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-            text-align: center;
-        }
+        .download-link:hover { background: rgba(255,255,255,0.2); }
+        .ad-space { width: 100%; margin-top: 2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; }
+        footer { margin-top: 2rem; padding: 2rem 0 0; color: rgba(255,255,255,0.3); font-size: 0.8rem; text-align: center; }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-link">← Torna alla home</a>
+        <div class="top-bar">
+            <a href="index.html" class="back-link" data-i18n="backHome">← Torna alla home</a>
+            <div id="lang-switcher">
+                <img src="https://flagcdn.com/w40/it.png" class="flag" data-lang="it" alt="Italiano">
+                <img src="https://flagcdn.com/w40/gb.png" class="flag" data-lang="en" alt="English">
+                <img src="https://flagcdn.com/w40/es.png" class="flag" data-lang="es" alt="Español">
+                <img src="https://flagcdn.com/w40/fr.png" class="flag" data-lang="fr" alt="Français">
+                <img src="https://flagcdn.com/w40/de.png" class="flag" data-lang="de" alt="Deutsch">
+            </div>
+        </div>
 
         <div class="tool-header">
-            <h1>PDF → PNG</h1>
-            <p>Trascina un PDF e ottieni ogni pagina come immagine PNG. Tutto nel tuo browser, nessun upload.</p>
+            <h1 data-i18n="toolTitle_png">PDF → PNG</h1>
+            <p data-i18n="toolDesc_png">Trascina un PDF e ottieni ogni pagina come immagine PNG. Tutto nel tuo browser, nessun upload.</p>
         </div>
 
         <div class="upload-area" id="drop-area">
             <input type="file" id="file-input" accept=".pdf">
             <label for="file-input" class="upload-label" id="upload-label">
-                Trascina qui il tuo PDF<br>oppure <span>clicca per caricare</span>
+                <span data-i18n="uploadLabel">Trascina qui il tuo PDF<br>oppure <span>clicca per caricare</span></span>
             </label>
             <div class="file-name" id="file-name"></div>
         </div>
 
-        <button class="btn-convert" id="convert-btn">Converti in PNG</button>
+        <button class="btn-convert" id="convert-btn" data-i18n="convertBtn">Converti in PNG</button>
 
         <div class="preview-container" id="preview">
             <img id="preview-img" src="" alt="Anteprima PNG">
-            <a id="download-link" class="download-link" download="pagina.png">⬇ Scarica PNG</a>
+            <a id="download-link" class="download-link" download="pagina.png" data-i18n="downloadBtn">⬇ Scarica PNG</a>
         </div>
 
+        <!-- Primo banner pubblicitario -->
         <div class="ad-space">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -228,14 +124,13 @@
                  data-ad-slot="IL_TUO_SLOT"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
 
-        <footer>© 2025 PDFlow</footer>
+        <footer data-i18n="footer">© 2025 PDFlow</footer>
     </div>
 
+    <script src="translations.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -246,43 +141,45 @@
         const previewContainer = document.getElementById('preview');
         const previewImg = document.getElementById('preview-img');
         const downloadLink = document.getElementById('download-link');
-        const uploadLabel = document.getElementById('upload-label');
 
         let selectedFile = null;
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        // Recupera file salvato in sessione (se presente)
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedPdf = sessionStorage.getItem('currentPdf');
+            if (savedPdf) {
+                const byteString = atob(savedPdf.split(',')[1]);
+                const mimeString = savedPdf.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+                selectedFile = new File([ab], 'documento.pdf', { type: mimeString });
+                fileNameDisplay.textContent = '📄 documento.pdf';
+                convertBtn.classList.add('visible');
+            }
+        });
+
+        // Drag & drop
+        ['dragenter','dragover','dragleave','drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+        ['dragenter','dragover'].forEach(eventName => {
             dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
         });
-
-        ['dragleave', 'drop'].forEach(eventName => {
+        ['dragleave','drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
         });
-
         dropArea.addEventListener('drop', handleDrop, false);
         fileInput.addEventListener('change', handleFileSelect, false);
 
         function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length) {
-                processFile(files[0]);
-            }
+            const files = e.dataTransfer.files;
+            if (files.length) processFile(files[0]);
         }
-
         function handleFileSelect(e) {
             const files = e.target.files;
-            if (files.length) {
-                processFile(files[0]);
-            }
+            if (files.length) processFile(files[0]);
         }
 
         function processFile(file) {
@@ -291,7 +188,13 @@
                 return;
             }
             selectedFile = file;
-            fileNameDisplay.textContent = `📄 ${file.name}`;
+            // Salva in sessionStorage
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                sessionStorage.setItem('currentPdf', e.target.result);
+            };
+            reader.readAsDataURL(file);
+            fileNameDisplay.textContent = '📄 ' + file.name;
             convertBtn.classList.add('visible');
             previewContainer.classList.remove('visible');
             previewImg.src = '';
@@ -300,8 +203,7 @@
 
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) return;
-
-            convertBtn.textContent = 'Conversione in corso...';
+            convertBtn.textContent = 'Conversione...';
             convertBtn.disabled = true;
 
             try {
@@ -309,28 +211,31 @@
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 const page = await pdf.getPage(1);
                 const viewport = page.getViewport({ scale: 2.0 });
-
                 const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
+                canvas.width = viewport.width; canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
 
                 const pngDataUrl = canvas.toDataURL('image/png');
+                // Salva risultato in sessionStorage per la pagina download
+                sessionStorage.setItem('resultPng', pngDataUrl);
+                sessionStorage.setItem('resultFileName', 'pagina.png');
 
+                // Mostra anteprima per feedback immediato
                 previewImg.src = pngDataUrl;
-                downloadLink.href = pngDataUrl;
-                downloadLink.download = 'pagina.png';
                 previewContainer.classList.add('visible');
+
+                // Prepara link per download (l'utente può anche scaricare subito)
+                downloadLink.href = pngDataUrl;
+                downloadLink.style.display = 'inline-block';
 
                 convertBtn.textContent = 'Converti in PNG';
                 convertBtn.disabled = false;
+
+                // Apri automaticamente la pagina di download (nuova finestra)
+                window.open('download.html?tool=png', '_blank');
             } catch (error) {
-                alert('Errore durante la conversione: ' + error.message);
+                alert('Errore: ' + error.message);
                 convertBtn.textContent = 'Converti in PNG';
                 convertBtn.disabled = false;
             }
