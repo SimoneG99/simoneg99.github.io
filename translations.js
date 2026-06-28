@@ -1,4 +1,4 @@
-// translations.js – PDFlow Multilingual
+// translations.js – PDFlow Multilingual (versione stabile)
 
 const translations = {
   it: {
@@ -25,7 +25,7 @@ const translations = {
     toolDesc_split: "Carica un PDF e seleziona le pagine che vuoi estrarre. Clicca sulle miniature per scegliere.",
     toolTitle_compress: "Comprimi PDF",
     toolDesc_compress: "La qualità che preferisci: dal 100% (identico all'originale) al 50% (massimo risparmio).",
-    uploadLabel: "Trascina qui il tuo PDF<br>oppure <span>clicca per caricarlo</span>",
+    uploadLabel: 'Trascina qui il tuo PDF<br>oppure <span style="text-decoration:underline;color:#ffd200;font-weight:600;">clicca per caricare</span>',
     convertBtn: "Converti in PNG",
     convertBtnSvg: "Converti in SVG",
     mergeBtn: "Unisci PDF",
@@ -81,7 +81,7 @@ const translations = {
     toolDesc_split: "Upload a PDF and select pages to extract. Click thumbnails to choose.",
     toolTitle_compress: "Compress PDF",
     toolDesc_compress: "Choose quality: from 100% (identical to original) to 50% (maximum savings).",
-    uploadLabel: "Drag your PDF here<br>or <span>click to browse</span>",
+    uploadLabel: 'Drag your PDF here<br>or <span style="text-decoration:underline;color:#ffd200;font-weight:600;">click to browse</span>',
     convertBtn: "Convert to PNG",
     convertBtnSvg: "Convert to SVG",
     mergeBtn: "Merge PDF",
@@ -137,7 +137,7 @@ const translations = {
     toolDesc_split: "Carga un PDF y selecciona las páginas a extraer. Haz clic en las miniaturas para elegir.",
     toolTitle_compress: "Comprimir PDF",
     toolDesc_compress: "Elige calidad: del 100% (idéntico al original) al 50% (máximo ahorro).",
-    uploadLabel: "Arrastra tu PDF aquí<br>o <span>haz clic para seleccionar</span>",
+    uploadLabel: 'Arrastra tu PDF aquí<br>o <span style="text-decoration:underline;color:#ffd200;font-weight:600;">haz clic para seleccionar</span>',
     convertBtn: "Convertir a PNG",
     convertBtnSvg: "Convertir a SVG",
     mergeBtn: "Unir PDF",
@@ -193,7 +193,7 @@ const translations = {
     toolDesc_split: "Téléchargez un PDF et sélectionnez les pages à extraire. Cliquez sur les vignettes pour choisir.",
     toolTitle_compress: "Compresser PDF",
     toolDesc_compress: "Choisissez la qualité : de 100% (identique à l'original) à 50% (réduction maximale).",
-    uploadLabel: "Glissez votre PDF ici<br>ou <span>cliquez pour parcourir</span>",
+    uploadLabel: 'Glissez votre PDF ici<br>ou <span style="text-decoration:underline;color:#ffd200;font-weight:600;">cliquez pour parcourir</span>',
     convertBtn: "Convertir en PNG",
     convertBtnSvg: "Convertir en SVG",
     mergeBtn: "Fusionner PDF",
@@ -249,7 +249,7 @@ const translations = {
     toolDesc_split: "Laden Sie ein PDF und wählen Sie Seiten zum Extrahieren. Klicken Sie auf die Miniaturansichten.",
     toolTitle_compress: "PDF komprimieren",
     toolDesc_compress: "Qualität wählen: von 100% (identisch mit Original) bis 50% (maximale Einsparung).",
-    uploadLabel: "Ziehen Sie Ihr PDF hierher<br>oder <span>klicken Sie zum Durchsuchen</span>",
+    uploadLabel: 'Ziehen Sie Ihr PDF hierher<br>oder <span style="text-decoration:underline;color:#ffd200;font-weight:600;">klicken Sie zum Durchsuchen</span>',
     convertBtn: "In PNG konvertieren",
     convertBtnSvg: "In SVG konvertieren",
     mergeBtn: "PDFs zusammenfügen",
@@ -283,17 +283,24 @@ const translations = {
   }
 };
 
-// Apply language to all elements with data-i18n attribute
+// Funzione principale per applicare la lingua
 function applyLanguage(lang = null) {
+  // Determina la lingua
   if (!lang) {
     lang = localStorage.getItem('pdflow_lang') || getBrowserLang() || 'it';
   }
-  const t = translations[lang] || translations.it;
+  
+  // Salva la lingua
   localStorage.setItem('pdflow_lang', lang);
-
+  
+  // Ottieni le traduzioni per la lingua corrente
+  const t = translations[lang] || translations.it;
+  
+  // Applica le traduzioni a tutti gli elementi con data-i18n
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (t[key]) {
+      // Gestisci elementi speciali
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         el.placeholder = t[key];
       } else {
@@ -301,40 +308,64 @@ function applyLanguage(lang = null) {
       }
     }
   });
-  // Update hreflang tags
-  document.querySelectorAll('link[hreflang]').forEach(link => {
-    if (link.getAttribute('hreflang') === lang) {
-      link.setAttribute('href', window.location.pathname + '?lang=' + lang);
-    }
-  });
-  // Also update the language switcher flags
+  
+  // Aggiorna le bandiere
   updateLangSwitcher(lang);
+  
+  // Aggiorna l'attributo lang dell'html
+  document.documentElement.lang = lang;
+  
+  // Aggiorna il titolo della pagina se c'è una chiave specifica
+  const titleKey = document.documentElement.getAttribute('data-i18n-title');
+  if (titleKey && t[titleKey]) {
+    document.title = t[titleKey];
+  }
+  
   return lang;
 }
 
+// Aggiorna lo stato visivo delle bandiere
 function updateLangSwitcher(currentLang) {
   document.querySelectorAll('#lang-switcher .flag').forEach(flag => {
-    flag.classList.toggle('active', flag.dataset.lang === currentLang);
+    if (flag.dataset.lang === currentLang) {
+      flag.classList.add('active');
+      flag.style.opacity = '1';
+    } else {
+      flag.classList.remove('active');
+      flag.style.opacity = '0.6';
+    }
   });
 }
 
+// Rileva la lingua del browser
 function getBrowserLang() {
-  const lang = navigator.language || navigator.userLanguage;
-  if (lang.startsWith('it')) return 'it';
-  if (lang.startsWith('en')) return 'en';
-  if (lang.startsWith('es')) return 'es';
-  if (lang.startsWith('fr')) return 'fr';
-  if (lang.startsWith('de')) return 'de';
-  return 'en';
+  const lang = (navigator.language || navigator.userLanguage || '').split('-')[0];
+  if (lang === 'it') return 'it';
+  if (lang === 'en') return 'en';
+  if (lang === 'es') return 'es';
+  if (lang === 'fr') return 'fr';
+  if (lang === 'de') return 'de';
+  return 'en'; // default inglese
 }
 
-// Add event listeners to language switcher
-document.addEventListener('DOMContentLoaded', () => {
+// Inizializzazione robusta: esegue subito se il DOM è già pronto,
+// altrimenti aspetta DOMContentLoaded
+function initTranslations() {
   applyLanguage();
+  
+  // Aggiungi event listener alle bandiere
   document.querySelectorAll('#lang-switcher .flag').forEach(flag => {
     flag.addEventListener('click', () => {
       const lang = flag.dataset.lang;
       applyLanguage(lang);
     });
   });
-});
+}
+
+// Controlla se il DOM è già pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTranslations);
+} else {
+  // DOM già pronto, esegui subito
+  initTranslations();
+} 
